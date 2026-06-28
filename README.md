@@ -11,6 +11,8 @@
 
 Unlike other tools, RepoLens runs entirely locally, estimates tokens in real-time, warns you of hardcoded API keys before you copy, and automatically splits massive repositories into semantic token-limited parts.
 
+![RepoLens TUI Demo](demo.gif)
+
 ---
 
 ## ✨ Features
