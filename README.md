@@ -2,6 +2,8 @@
 
 > **The Ultimate Local-First LLM Code Packer & Interactive Token Optimizer**
 
+[English](README.md) | [繁體中文](README_ZH.md)
+
 [![Go Report Card](https://goreportcard.com/badge/github.com/catball912/repolens)](https://goreportcard.com/report/github.com/catball912/repolens)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Go Version](https://img.shields.io/github/go-mod/go-version/catball912/repolens)](https://github.com/golang/go)
@@ -13,7 +15,9 @@ Unlike other tools, RepoLens runs entirely locally, estimates tokens in real-tim
 
 ![RepoLens TUI Demo](demo.gif)
 
-📖 **Want a step-by-step guide? Check out our [Detailed Tutorial (繁體中文)](TUTORIAL.md) for PATH configurations, TUI tricks, and scripting!**
+📖 **Need a detailed guide? Check out our step-by-step tutorials:**
+*   👉 **[Detailed Tutorial (English)](TUTORIAL_EN.md)**
+*   👉 **[Detailed Tutorial (繁體中文)](TUTORIAL_ZH.md)**
 
 ---
 
