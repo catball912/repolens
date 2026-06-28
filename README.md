@@ -13,6 +13,8 @@ Unlike other tools, RepoLens runs entirely locally, estimates tokens in real-tim
 
 ![RepoLens TUI Demo](demo.gif)
 
+📖 **Want a step-by-step guide? Check out our [Detailed Tutorial (繁體中文)](TUTORIAL.md) for PATH configurations, TUI tricks, and scripting!**
+
 ---
 
 ## ✨ Features
