@@ -1,0 +1,12 @@
+# Binaries
+repolens
+repolens.exe
+dist/
+bin/
+
+# Go files
+*.test
+*.out
+
+# OS files
+.DS_Store

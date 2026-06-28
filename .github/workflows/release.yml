@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & Release Binaries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache: true
+
+      - name: Build & Package Binaries
+        run: |
+          mkdir -p dist
+          
+          # Target platforms list
+          PLATFORMS=(
+            "darwin/amd64"
+            "darwin/arm64"
+            "linux/amd64"
+            "linux/arm64"
+            "windows/amd64"
+          )
+          
+          for PLATFORM in "${PLATFORMS[@]}"; do
+            OS=$(echo "$PLATFORM" | cut -d'/' -f1)
+            ARCH=$(echo "$PLATFORM" | cut -d'/' -f2)
+            
+            BINARY_NAME="repolens"
+            if [ "$OS" = "windows" ]; then
+              BINARY_NAME="repolens.exe"
+            fi
+            
+            echo "Building for $OS/$ARCH..."
+            GOOS=$OS GOARCH=$ARCH go build -ldflags="-s -w" -o "dist/$BINARY_NAME" main.go
+            
+            # Package as archive
+            cd dist
+            if [ "$OS" = "windows" ]; then
+              zip "repolens-${OS}-${ARCH}.zip" "$BINARY_NAME"
+              rm "$BINARY_NAME"
+            else
+              tar -czvf "repolens-${OS}-${ARCH}.tar.gz" "$BINARY_NAME"
+              rm "$BINARY_NAME"
+            fi
+            cd ..
+          done
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/repolens-*.tar.gz
+            dist/repolens-*.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
