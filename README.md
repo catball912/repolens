@@ -2,9 +2,9 @@
 
 > **The Ultimate Local-First LLM Code Packer & Interactive Token Optimizer**
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/yourusername/repolens)](https://goreportcard.com/report/github.com/yourusername/repolens)
+[![Go Report Card](https://goreportcard.com/badge/github.com/catball912/repolens)](https://goreportcard.com/report/github.com/catball912/repolens)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Go Version](https://img.shields.io/github/go-mod/go-version/yourusername/repolens)](https://github.com/golang/go)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/catball912/repolens)](https://github.com/golang/go)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-package)](http://makeapullrequest.com)
 
 **RepoLens** is a zero-dependency, ultra-fast command-line utility and interactive Terminal User Interface (TUI) that packages your codebase into a single, beautifully structured prompt payload for Large Language Models like **Claude**, **ChatGPT**, and **Gemini**.
@@ -87,17 +87,17 @@ Based on testing against the [spf13/cobra](https://github.com/spf13/cobra) codeb
 ### Homebrew (macOS / Linux)
 *(Coming Soon)*
 ```bash
-brew tap yourusername/repolens
+brew tap catball912/repolens
 brew install repolens
 ```
 
 ### Go Install (Requires Go installed)
 ```bash
-go install github.com/yourusername/repolens@latest
+go install github.com/catball912/repolens@latest
 ```
 
 ### Manual Binary Download
-Download pre-compiled binaries for macOS, Linux, and Windows from our [Releases Page](https://github.com/yourusername/repolens/releases).
+Download pre-compiled binaries for macOS, Linux, and Windows from our [Releases Page](https://github.com/catball912/repolens/releases).
 
 ---
 
