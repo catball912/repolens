@@ -423,12 +423,16 @@ func FormatPackedOutput(root string, nodes []*FileNode, format string, stripComm
 		fileTokens := CalculateTokens(content)
 
 		if strings.ToLower(format) == "xml" {
-			sb.WriteString(fmt.Sprintf("<file path=\"%s\" size=\"%.2f KB\" tokens=\"%d\">\n", node.Path, sizeKB, fileTokens))
-			sb.WriteString(content)
-			if !strings.HasSuffix(content, "\n") {
+			safeContent := content
+			if strings.Contains(safeContent, "]]>") {
+				safeContent = strings.ReplaceAll(safeContent, "]]>", "]]]]><![CDATA[>")
+			}
+			sb.WriteString(fmt.Sprintf("<file path=\"%s\" size=\"%.2f KB\" tokens=\"%d\">\n<![CDATA[\n", node.Path, sizeKB, fileTokens))
+			sb.WriteString(safeContent)
+			if !strings.HasSuffix(safeContent, "\n") {
 				sb.WriteString("\n")
 			}
-			sb.WriteString("</file>\n\n")
+			sb.WriteString("]]>\n</file>\n\n")
 		} else {
 			// Markdown format
 			sb.WriteString(fmt.Sprintf("## File: %s (Size: %.2f KB | Tokens: %d)\n", node.Path, sizeKB, fileTokens))

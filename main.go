@@ -106,12 +106,16 @@ func main() {
 			fileTokens := packer.CalculateTokens(content)
 
 			if strings.ToLower(*format) == "xml" {
-				fileBuilder.WriteString(fmt.Sprintf("<file path=\"%s\" size=\"%.2f KB\" tokens=\"%d\">\n", node.Path, sizeKB, fileTokens))
-				fileBuilder.WriteString(content)
-				if !strings.HasSuffix(content, "\n") {
+				safeContent := content
+				if strings.Contains(safeContent, "]]>") {
+					safeContent = strings.ReplaceAll(safeContent, "]]>", "]]]]><![CDATA[>")
+				}
+				fileBuilder.WriteString(fmt.Sprintf("<file path=\"%s\" size=\"%.2f KB\" tokens=\"%d\">\n<![CDATA[\n", node.Path, sizeKB, fileTokens))
+				fileBuilder.WriteString(safeContent)
+				if !strings.HasSuffix(safeContent, "\n") {
 					fileBuilder.WriteString("\n")
 				}
-				fileBuilder.WriteString("</file>\n\n")
+				fileBuilder.WriteString("]]>\n</file>\n\n")
 			} else {
 				fileBuilder.WriteString(fmt.Sprintf("## File: %s (Size: %.2f KB | Tokens: %d)\n", node.Path, sizeKB, fileTokens))
 				fileBuilder.WriteString("```" + lang + "\n")
