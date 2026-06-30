@@ -103,6 +103,30 @@ You can direct the packed prompt directly to stdout using `-o -` for integration
 repolens -n -o - | llm "Explain the architecture of this project"
 ```
 
+### C. Bi-directional Unpacking Workflow (LLM to Local Workspace)
+When you ask an LLM (like Claude or ChatGPT) to make modifications to your files, instead of copy-pasting the modified blocks back into your editor manually, you can use RepoLens to automatically apply the updates:
+
+#### Step 1: Tell the LLM to output modified files in XML or Markdown format
+Instruct the LLM as follows:
+> "Output the modified files using either `<file path="relative/path">code</file>` XML tags or `## File: relative/path` Markdown code blocks."
+
+#### Step 2: Unpack directly from clipboard or response files
+If you copy the LLM's response to your clipboard, run:
+```bash
+# On macOS: pipes the clipboard directly to RepoLens unpack
+pbpaste | repolens -u -
+
+# On Linux (requires xclip):
+xclip -selection clipboard -o | repolens -u -
+```
+
+If you saved the LLM response in a file (e.g. `response.txt`), run:
+```bash
+repolens -u response.txt
+```
+
+RepoLens will parse the blocks, automatically clean CDATA escapes, validate target paths to prevent directory traversal attacks, and overwrite the local files in a fraction of a second!
+
 ---
 
 ## 4. 🧩 Large Codebase Splitting Strategy (Token Optimization)

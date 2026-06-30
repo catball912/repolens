@@ -55,8 +55,8 @@ repolens
 
 ---
 
-### 2. Direct CLI / Agent Mode (Best for AI Agents & Scripting)
-Package everything instantly without launching the TUI:
+### 2. Direct CLI & Bi-directional Mode (Best for Automation & AI Agents)
+Package everything instantly, or write mutated code back to your workspace:
 ```bash
 # Package current directory and copy to clipboard
 repolens -n
@@ -66,16 +66,23 @@ repolens -n -d /path/to/project -i "*_test.go" -o output.md
 
 # Split a massive codebase into files of maximum 50k tokens each
 repolens -n -s 50000 -o repo.md
+
+# Apply LLM edits back to code (pipes clipboard response directly back to files!)
+pbpaste | repolens -u -
+
+# Unpack LLM changes from a response file into a specific target directory
+repolens -d /path/to/project -u response.txt
 ```
 
 #### CLI Flags
 *   `-n`: Run in non-interactive (CLI) mode.
-*   `-d <path>`: Target directory to package (default: `.`).
+*   `-d <path>`: Target directory to package or unpack into (default: `.`).
 *   `-o <path>`: Output file path. Use `-o -` to print directly to stdout, or leave empty to write to the system clipboard.
 *   `-s <int>`: Max tokens per split file (default: `0` for no splitting).
 *   `-c`: Strip comments and blank lines (default: `true`).
 *   `-f <format>`: Output layout style: `markdown` or `xml` (default: `markdown`).
 *   `-i <patterns>`: Comma-separated custom ignore glob patterns (e.g. `*.json,*.log`).
+*   `-u <path>`: Unpack and write back changes from a packed file or LLM response (use `-` for stdin).
 
 ---
 

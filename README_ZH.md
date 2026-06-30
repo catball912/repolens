@@ -53,8 +53,8 @@ repolens
 
 ---
 
-### 2. CLI 模式 (適合自動化腳本與 AI Agent 呼叫)
-無需啟動選單，直接在後台完成打包：
+### 2. CLI 與雙向還原模式 (適合自動化腳本、AI Agent 及程式碼套用)
+無需啟動選單，直接在後台打包程式碼，或將 AI 修改後的程式碼直接還原回工作區：
 ```bash
 # 直接打包當前專案並寫入剪貼簿
 repolens -n
@@ -64,16 +64,23 @@ repolens -n -d /path/to/project -i "*_test.go" -o output.md
 
 # 自動分卷打包：限制每卷最大 50k tokens，輸出多個檔案
 repolens -n -s 50000 -o repo.md
+
+# 雙向工作流：直接將剪貼簿中 AI 修改後的內容解析並還原回檔案！
+pbpaste | repolens -u -
+
+# 從指定的 AI 回覆檔案中解析並還原到目標專案目錄
+repolens -d /path/to/project -u response.txt
 ```
 
 #### CLI 常用 Flag 參數
 *   `-n`：啟用非交互式（CLI）模式。
-*   `-d <path>`：目標打包路徑（預設：`.`）。
+*   `-d <path>`：目標打包路徑或解包還原路徑（預設：`.`）。
 *   `-o <path>`：輸出檔案路徑。使用 `-o -` 直接輸出到 Stdout，留空則複製到系統剪貼簿。
 *   `-s <int>`：每卷最大 Token 上限（預設 `0` 代表不限制/不分卷）。
 *   `-c`：是否過濾註釋和空行（預設 `true`）。
 *   `-f <format>`：輸出格式類型：`markdown` 或 `xml`（預設 `markdown`）。
 *   `-i <patterns>`：以逗號分隔的自定義排除 Glob 規律（如 `*.json,*.log`）。
+*   `-u <path>`：解包並還原寫入檔案。傳入 AI 回覆檔案路徑，或使用 `-` 接收標準輸入（Stdin）。
 
 ---
 

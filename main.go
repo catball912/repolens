@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"os"
@@ -23,6 +24,7 @@ func main() {
 	ignoreStr := flag.String("i", "", "Comma-separated list of custom glob patterns to ignore (e.g. '*.json,*.log')")
 	outputFile := flag.String("o", "", "Output file path (use '-' for stdout, leave empty for clipboard)")
 	maxTokens := flag.Int("s", 0, "Max tokens per output file (default 0 for no limit/splitting)")
+	unpackFile := flag.String("u", "", "Unpack and write back changes from a packed file or LLM response (use '-' for stdin)")
 	flag.Parse()
 
 	// Check if directory exists
@@ -36,6 +38,46 @@ func main() {
 	if err != nil || !info.IsDir() {
 		fmt.Printf("Error: Target directory does not exist: %s\n", targetDir)
 		os.Exit(1)
+	}
+
+	// Unpack/write back changes
+	if *unpackFile != "" {
+		var contentBytes []byte
+		var err error
+
+		if *unpackFile == "-" {
+			var builder strings.Builder
+			scanner := bufio.NewScanner(os.Stdin)
+			for scanner.Scan() {
+				builder.WriteString(scanner.Text() + "\n")
+			}
+			if err := scanner.Err(); err != nil {
+				fmt.Fprintf(os.Stderr, "Error reading from stdin: %v\n", err)
+				os.Exit(1)
+			}
+			contentBytes = []byte(builder.String())
+		} else {
+			contentBytes, err = os.ReadFile(*unpackFile)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error reading unpack file: %v\n", err)
+				os.Exit(1)
+			}
+		}
+
+		count, err := packer.Unpack(string(contentBytes), targetDir)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error during unpack: %v\n", err)
+			os.Exit(1)
+		}
+
+		if count == 0 {
+			fmt.Fprintf(os.Stderr, "No files or codeblocks found to unpack in the input.\n")
+			os.Exit(1)
+		}
+
+		styleSuccess := lipgloss.NewStyle().Foreground(lipgloss.Color("78")).Bold(true)
+		fmt.Printf("%s Successfully unpacked and wrote/updated %d files in %s!\n", styleSuccess.Render("✔"), count, targetDir)
+		os.Exit(0)
 	}
 
 	// Stylings for summary output

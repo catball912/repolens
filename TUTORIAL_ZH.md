@@ -103,6 +103,30 @@ repolens -n -d /home/user/myproject -o packed_project.md
 repolens -n -o - | llm "請幫我分析這個專案的架構"
 ```
 
+### C. 雙向解包還原工作流 (LLM 回覆自動套用)
+當您讓 LLM（如 Claude 或 ChatGPT）修改程式碼後，您不需要再手動一個個複製修改過的程式碼塊並貼回編輯器。您可以使用 RepoLens 快速將修改自動套用回工作區：
+
+#### 步驟 1：要求 LLM 輸出特定格式的修改
+在向 LLM 提問時，在提示詞最後加入：
+> 「請使用 XML 格式的 `<file path="相對路徑">程式碼</file>` 或 Markdown 的 `## File: 相對路徑` 來輸出修改後的檔案。」
+
+#### 步驟 2：直接從剪貼簿或檔案進行解包還原
+如果您已將 LLM 的回覆複製到剪貼簿：
+```bash
+# 在 macOS 下：直接將剪貼簿內容導入 RepoLens 進行還原
+pbpaste | repolens -u -
+
+# 在 Linux 下 (需安裝 xclip)：
+xclip -selection clipboard -o | repolens -u -
+```
+
+如果將回覆存為了檔案（例如 `response.txt`）：
+```bash
+repolens -u response.txt
+```
+
+RepoLens 會自動掃描區塊、清除嵌套的 CDATA 轉義、驗證路徑安全性（防範路徑穿越攻擊），並在不到 0.1 秒內覆寫並更新您的本地檔案！
+
 ---
 
 ## 4. 🧩 超大型專案分卷打包策略 (Token Optimization)
