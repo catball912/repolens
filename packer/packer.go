@@ -40,6 +40,29 @@ var defaultIgnorePatterns = []string{
 	".gemini",
 }
 
+// secretPreCheckStrings are substrings that, if present, trigger a full regex scan for secrets.
+var secretPreCheckStrings = []string{
+	"sk-",
+	"AKIA",
+	"hooks.slack",
+	"aws_secret",
+	"api_key",
+	"secret_key",
+	"password",
+	"credential",
+	"token",
+}
+
+// secretPattern is a compiled alternation regex for detecting various secret patterns.
+// It captures each rule in a named group for identification.
+var secretPattern = regexp.MustCompile(
+	`(?P<OpenAI>sk-(?:proj-)?[a-zA-Z0-9]{32,})` +
+	`|(?P<Generic>(?i)(?:api_key|apikey|secret_key|secretkey|password|passwd|private_key|db_pass|db_password|credential|token)\s*[:=]\s*["'][a-zA-Z0-9\-_\.\+=]{8,}["'])` +
+	`|(?P<Slack>https://hooks\.slack\.com/services/[a-zA-Z0-9_]{8,12}/[a-zA-Z0-9_]{8,12}/[a-zA-Z0-9_]{24})` +
+	`|(?P<AWSKey>(?:A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|ASCA|ASIA)[A-Z0-9]{16})` +
+	`|(?P<AWSSecret>(?i)aws_secret[a-zA-Z0-9_]*\s*[:=]\s*["']?[a-zA-Z0-9/\+=]{40}["']?)`,
+)
+
 // WalkDirectory reads the directory tree, respects gitignore and custom ignores, and returns sorted FileNodes
 func WalkDirectory(root string, customIgnores []string) ([]*FileNode, error) {
 	// Clean root path
@@ -318,7 +341,7 @@ func StripComments(content string, filename string) string {
 }
 
 // DetectSecrets scans content for potential secrets (e.g., API Keys, AWS keys)
-// Returns list of warnings found
+// Uses a pre-compiled global regex and a fast substring pre-check for efficiency.
 func DetectSecrets(content string, filename string) []string {
 	var warnings []string
 
@@ -327,18 +350,44 @@ func DetectSecrets(content string, filename string) []string {
 		warnings = append(warnings, "Packed a configuration environment (.env) file.")
 	}
 
-	// Regex check for API keys
-	rules := map[string]*regexp.Regexp{
-		"OpenAI API Key":         regexp.MustCompile(`sk-(proj-)?[a-zA-Z0-9]{32,}`),
-		"Generic API Key/Secret": regexp.MustCompile(`(?i)(api_key|apikey|secret_key|secretkey|password|passwd|private_key|db_pass|db_password|credential|token)\s*[:=]\s*["'][a-zA-Z0-9\-_\.\+=]{8,}["']`),
-		"Slack Webhook URL":      regexp.MustCompile(`https://hooks\.slack\.com/services/[a-zA-Z0-9_]{8,12}/[a-zA-Z0-9_]{8,12}/[a-zA-Z0-9_]{24}`),
-		"AWS Access Key ID":      regexp.MustCompile(`(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|ASCA|ASIA)[A-Z0-9]{16}`),
-		"AWS Secret Access Key":  regexp.MustCompile(`(?i)aws_secret[a-zA-Z0-9_]*\s*[:=]\s*["']?[a-zA-Z0-9/\+=]{40}["']?`),
+	// Fast pre-check using common secret substrings; skip regex if none are present
+	needsScan := false
+	for _, s := range secretPreCheckStrings {
+		if strings.Contains(content, s) {
+			needsScan = true
+			break
+		}
+	}
+	if !needsScan {
+		return warnings
 	}
 
-	for name, regex := range rules {
-		if regex.MatchString(content) {
-			warnings = append(warnings, "Detected possible "+name+" in "+filename)
+	// Single-pass regex scan using the global compiled alternation pattern
+	matches := secretPattern.FindAllStringSubmatch(content, -1)
+	if matches == nil {
+		return warnings
+	}
+
+	names := secretPattern.SubexpNames()
+	for _, match := range matches {
+		for i := 1; i < len(match) && i < len(names); i++ {
+			if match[i] != "" {
+				var ruleName string
+				switch names[i] {
+				case "OpenAI":
+					ruleName = "OpenAI API Key"
+				case "Generic":
+					ruleName = "Generic API Key/Secret"
+				case "Slack":
+					ruleName = "Slack Webhook URL"
+				case "AWSKey":
+					ruleName = "AWS Access Key ID"
+				case "AWSSecret":
+					ruleName = "AWS Secret Access Key"
+				}
+				warnings = append(warnings, "Detected possible "+ruleName+" in "+filename)
+				break // only one named group can match per alternation branch
+			}
 		}
 	}
 
