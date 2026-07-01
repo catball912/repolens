@@ -34,6 +34,27 @@ Unlike other tools, RepoLens runs entirely locally, estimates tokens in real-tim
 
 ---
 
+## 📥 Installation
+
+**Mac (Homebrew - Recommended):**
+```bash
+brew install catball912/tap/repolens
+```
+
+**Go Install:**
+```bash
+go install github.com/catball912/repolens@latest
+```
+
+**Build from Source:**
+```bash
+git clone https://github.com/catball912/repolens.git
+cd repolens
+go build
+```
+
+---
+
 ## 🚀 Quick Start
 
 ### 1. Interactive TUI Mode (Best for Humans)

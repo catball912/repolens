@@ -32,6 +32,27 @@
 
 ---
 
+## 📥 安裝指南
+
+**Mac (Homebrew - 推薦):**
+```bash
+brew install catball912/tap/repolens
+```
+
+**Go 安裝:**
+```bash
+go install github.com/catball912/repolens@latest
+```
+
+**從原始碼編譯:**
+```bash
+git clone https://github.com/catball912/repolens.git
+cd repolens
+go build
+```
+
+---
+
 ## 🚀 快速開始
 
 ### 1. 互動式 TUI 模式 (適合開發者手動挑選)
